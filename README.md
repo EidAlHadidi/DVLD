@@ -1,6 +1,7 @@
 The tasks of the Driver's License Department vary from country to country, but generally,
 these departments share a set of common and essential responsibilities to regulate and manage the issuance of driver's licenses and ensure the safety of drivers
 on the road.
+
 The DVLD Management System is a comprehensive desktop application designed to automate the process of issuing and managing driving licenses.
 It handles everything from personal records and user management to complex application workflows, including vision, theory, and practical tests.
 
