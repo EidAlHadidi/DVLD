@@ -1,0 +1,13 @@
+﻿Business classes blueprint
+
+1 Mode
+2 Attributes
+3 public and private constructors
+4 Methods : 
+	get all
+	find with all its overloades
+	private add new
+	private update
+	Save
+	Delete
+	Is exist with all of its overloades

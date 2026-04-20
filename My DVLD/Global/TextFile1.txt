@@ -1,0 +1,189 @@
+﻿Commented methods
+
+Check if Already have a license method
+
+//First condition  : check if they have an application
+//Second condition : check if they have a local license app with the same license class and completed 
+clsApplication LocalApp = clsApplication.Find(_PersonID, _applicationType.ApplicationTypeID,
+(int)enApplicationStatus.Completed);
+//if it is null that means they don't have a license
+if (LocalApp == null)
+    return false;
+//Check if the person has a local DL application with needed license class
+clsLocalDrivingLicenseApplication Temp = clsLocalDrivingLicenseApplication.Find(
+    LocalApp.ApplicationID,cbLicenseClasses.SelectedIndex + 1);
+return (Temp != null && Temp.LicenseClassID == (cbLicenseClasses.SelectedIndex + 1));
+----------------------------------
+Check if repeated method
+//Not completed method
+//This method checks if the person has repeated(not completed) order with the same license class
+int LicenseClassID = cbLicenseClasses.SelectedIndex + 1;
+clsLocalDrivingLicenseApplication LocalApp =
+    clsLocalDrivingLicenseApplication.Find(_PersonID, LicenseClassID, 1);
+return LocalApp != null;
+----------------------------------
+btnSave_Click method
+
+if(CheckIfAlreadyHaveLicense())
+{
+    MessageBox.Show(("This person already have a License with this class in the database."
+        + Environment.NewLine + "You cant assign a new one!"), "Another order exists",
+        MessageBoxButtons.OK, MessageBoxIcon.Error);
+    return;
+}
+
+
+_Application.ApplicationDate = DateTime.Now;
+_Application.ApplicantPersonID = _PersonID;
+_Application.ApplicationTypeID = _applicationType.ApplicationTypeID;
+_Application.ApplicationStatus = (int)enApplicationStatus.New;
+_Application.LastStatusDate = DateTime.Now;
+_Application.PaidFees = _applicationType.ApplicationFees;
+_Application.CreatedByUserID = _User.UserID;
+
+_LocalApplication.LicenseClassID = cbLicenseClasses.SelectedIndex + 1;
+
+if (!_Application.Save())
+{
+    MessageBox.Show("Error while saving the application record.", 
+        "Saving Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    return;
+}
+
+if(CheckIfRepeated())
+{
+    MessageBox.Show(("This person already have an application order in the database."
+        + Environment.NewLine + "You cant assign a new one!"), "Another order exists",
+        MessageBoxButtons.OK, MessageBoxIcon.Error);
+    clsApplication.DeleteApplication(_Application.ApplicationID);
+    _Application = new clsApplication();
+    return;
+}
+
+_LocalApplication.ApplicationID = _Application.ApplicationID;
+if (_LocalApplication.Save())
+{
+    MessageBox.Show("Application saved successfully");
+    lblApplicationID.Text = _LocalApplication.LocalDrivingLicenseApplicationID.ToString();
+}
+else
+{
+    MessageBox.Show("Error while saving local driving license application!", "Saving error",
+    MessageBoxButtons.OK, MessageBoxIcon.Error);
+    clsApplication.DeleteApplication(_Application.ApplicationID);
+    return;
+}
+
+------------------------------------------------------
+Commented methods in clsLocalDrivingLicenseApplication
+
+public static clsLocalDrivingLicenseApplication Find(int ApplicationID, int LicenseClassID)
+        {
+            int ID = -1;
+            if (DAL_LocalDrivingLicenseApplications.Find(ApplicationID, LicenseClassID, ref ID))
+            {
+                return new clsLocalDrivingLicenseApplication(ID, ApplicationID, LicenseClassID);
+            }
+            else
+                return null;
+        }
+
+        public static clsLocalDrivingLicenseApplication Find(int PersonID, int LicenseClassID, int Status)
+        {
+            int ApplicationID = -1;
+            int LocalApplicationID = -1;
+            if (DAL_LocalDrivingLicenseApplications.Find(PersonID, LicenseClassID, Status,
+                ref LocalApplicationID, ref ApplicationID))
+            {
+                return new clsLocalDrivingLicenseApplication(LocalApplicationID, ApplicationID, LicenseClassID);
+            }
+            else
+                return null;
+        }
+
+------------------------------------------------------
+Commented methods in DAL_LocalDrivingLicenseApplications
+
+public static bool Find(int ApplicationID,int LicenseClass,ref int ID)
+        {
+            bool IsFound = false;
+
+            SqlConnection conn = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"select * from LocalDrivingLicenseApplications where ApplicationID=@ApplicationID 
+            and LicenseClassID = @LicenseClassID";
+
+            SqlCommand cmd = new SqlCommand(query, conn);
+
+            cmd.Parameters.AddWithValue("@ApplicationID", ApplicationID);
+            cmd.Parameters.AddWithValue("@LicenseClassID", LicenseClass);
+
+            try
+            {
+                conn.Open();
+                SqlDataReader R = cmd.ExecuteReader();
+                if (R.Read())
+                {
+                    IsFound = true;
+                    ID = Convert.ToInt32(R["LocalDrivingLicenseApplicationID"]);
+                }
+                else
+                    IsFound = false;
+                R.Close();
+
+            }
+            catch (Exception)
+            {
+                IsFound = false;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return IsFound;
+        }
+
+        public static bool Find(int PersonID,int LicenseClassID,int ApplicationStatus,
+            ref int LocalAppID,ref int ApplicationID)
+        {
+            bool isFound = false;
+
+            SqlConnection conn = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"
+            select * from LocalDrivingLicenseApplications
+             inner join Applications on Applications.ApplicationID 
+            = LocalDrivingLicenseApplications.ApplicationID
+             where ApplicantPersonID = @PersonID and LicenseClassID =
+            @LicenseClassID and ApplicationStatus = @ApplicationStatus
+            ";
+
+            SqlCommand cmd = new SqlCommand(query, conn);
+
+            cmd.Parameters.AddWithValue("@PersonID", PersonID);
+            cmd.Parameters.AddWithValue("@LicenseClassID", LicenseClassID);
+            cmd.Parameters.AddWithValue("@ApplicationStatus", ApplicationStatus);
+            try
+            {
+                conn.Open();
+                SqlDataReader R = cmd.ExecuteReader();
+                if (R.Read())
+                {
+                    isFound = true;
+                    LocalAppID = Convert.ToInt32(R["LocalDrivingLicenseApplicationID"]);
+                    ApplicationID = Convert.ToInt32("ApplicationID");
+                }
+                R.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return isFound;
+        }

@@ -1,0 +1,8 @@
+﻿Data access static classes blueprint
+
+1 Get all method
+2 Find method
+3 Add new method
+4 Update method
+5 Delete method
+6 Is exist method

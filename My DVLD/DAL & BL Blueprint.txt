@@ -1,0 +1,9 @@
+1 Make the DAL and BL classes      :
+2 Mode + Attributes + Constructors :
+3 DAL_GetAll + BL_GetAll + Test    :
+4 DAL_Find + BL_Find + Test        :
+5 DAL_AddNew + BL_AddNew           :
+6 DAL_Update + BL_Update           :
+7 BL_Save + Test                   :
+8 DAL_Delete + BL_Delete + Test    :
+9 DAL_DoesExist + BL_DoesExist     :
