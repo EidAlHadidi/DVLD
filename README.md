@@ -4,7 +4,7 @@ on the road.
 The DVLD Management System is a comprehensive desktop application designed to automate the process of issuing and managing driving licenses.
 It handles everything from personal records and user management to complex application workflows, including vision, theory, and practical tests.
 
-🚀 Key Features
+# 🚀 Key Features
 Person & User Management: Comprehensive CRUD operations for system users and individuals with National ID validation.
 
 Application Management: Handle new local/international licenses, renewals, replacements (lost/damaged), and license detaining/releasing.
@@ -19,7 +19,7 @@ International License Issuance.
 
 License Detain/Release system with fine management.
 
-🛠️ Tech Stack
+# 🛠️ Tech Stack
 Language: C#
 
 Framework: .NET Framework / WinForms
